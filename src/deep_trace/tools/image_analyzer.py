@@ -1,11 +1,10 @@
 import base64
-from typing import Optional, Type
+from typing import Optional
 from textwrap import dedent
 from typing import List
 import logging
 
-from openai import OpenAI
-from pydantic import BaseModel, PrivateAttr
+from pydantic import PrivateAttr
 
 from crewai.tools.base_tool import BaseTool
 from crewai import LLM

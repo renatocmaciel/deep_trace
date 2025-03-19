@@ -2,11 +2,7 @@ import os
 import time
 import urllib
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
-from selenium import webdriver
-
-from .driver import Driver
+from deep_trace.tools.driver import Driver
 
 class LinkedinClient:
     def __init__(self):

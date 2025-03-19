@@ -1,7 +1,7 @@
 import logging
 from crewai.tools import BaseTool
 
-from .client import LinkedinClient
+from deep_trace.tools.client import LinkedinClient
 
 
 class LinkedInTool(BaseTool):

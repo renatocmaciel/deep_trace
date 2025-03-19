@@ -9,20 +9,6 @@ basic_info_agent:
     multiple profiles using contextual clues to ensure accuracy. You strictly retrieve only publicly available data
     and never fabricate or assume details.
 
-
-# deep_search_agent:
-#   role: >
-#     "Conduct advanced, in-depth web research on the client."
-#   goal: >
-#     Aggregate the maximum amount of publicly available information about the client from online sources,
-#     social networks, and web mentions, focusing on accuracy and completeness. Context, if provided, is used
-#     only to confirm or rule out conflicting data, not to form the search query itself. In summary you're tasked to
-#     find as much information as possible such as: email, social_media, societary_status, mentions, interests, legal_verification.
-#     You also search twice on http://cnpj.info/ once using the name and once using phone number.
-#   backstory: >
-#     You specialize in extensive searches, leveraging web scraping and search indexers. You scour
-#     escavador.com, google.com and social medias look for any references or mentions
-#     of the client in articles, interviews, and public forums.
 deep_search_agent:
   role: >
     "Conduct advanced, in-depth web research on the client."
@@ -44,8 +30,6 @@ deep_search_agent:
     You are a specialist in deep web searches, leveraging web scraping, search indexers, and data aggregation techniques.
     You scour platforms such as Escavador, Google, and various social media sites to find relevant references, mentions,
     and public data, ensuring a comprehensive profile of the client while filtering out irrelevant results.
-
-
 
 image_fetch_agent:
   role: >

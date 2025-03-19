@@ -1,9 +1,9 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai_tools import SerperDevTool, ScrapeWebsiteTool
-from .tools.linkedin import LinkedInTool
-from .tools.image_analyzer import ImageAnalysisTool
-from .models import BasicInfo, DeepSearchInfo, ImageCollection, ImageAnalysis, Profile
+from deep_trace.tools.linkedin import LinkedInTool
+from deep_trace.tools.image_analyzer import ImageAnalysisTool
+from deep_trace.models import BasicInfo, DeepSearchInfo, ImageCollection, ImageAnalysis, Profile
 
 @CrewBase
 class DeepTraceCrew():
