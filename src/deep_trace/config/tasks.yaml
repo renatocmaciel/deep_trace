@@ -1,0 +1,175 @@
+basic_info_task:
+  description: >
+    Receive the client's name and phone number. Retrieve their LinkedIn profile information, ensuring accuracy
+    by using the provided context to resolve ambiguities. If the person has a middle name search for the FullName
+    including MiddleName and FirstName and LastName. If you cannot find the requested information return none for
+    each field.
+    Name: {name}
+    Phone: {phone}
+    Context: {context}
+    Search target:
+      - LinkedIn profiles matching the provided name and phone number.
+      - Use context only to filter results, not as a direct search criterion.
+  expected_output: >
+    - linkedin_profile_photo
+    - name
+    - position
+    - location
+    - profile_link
+
+# deep_search_task:
+#   description: >
+#     If the person has a middle name search for the FullName including MiddleName and FirstName and LastName.
+#     Using the identification data (full name, phone),  broaden you search gathering information from escavador.com, matching it to the
+#     given person profile, location, position, and others. Search for companies the person owns. Use location, business type to match it to the profile or not.
+#     Search for the persons social networks such as instagram, facebook, tiktok. Look for the persons email.
+#     this is the informations were looking for: email, social_media, societary_status, mentions, interests, legal_verification.
+#     Do not combine multiple identification data, use one each time. full name and phone.
+#     Search on google to find the person social medias such as github, instagram, facebook, tiktok, X (Twitter).
+#     Search on https://empresas.serasaexperian.com.br/, https://www.econodata.com.br/ and http://cnpj.info/ for societary status.
+#     Search on https://www.escavador.com/ for additional person information and mentions.
+#     Search on https://www.jusbrasil.com.br/ for legal verification.
+
+#     Use the received linkedin profile to scrape additional information. Also if you're able to find the person other social medias
+#     scrape its profile for email, mentions, interests.
+
+#     Name: {name}
+#     Phone: {phone}
+#     Context: {context}
+#   expected_output: >
+#     - email
+#     - social_media
+#     - societary_status
+#     - mentions
+#     - interests
+#     - legal_verification
+#     - escavador_data
+deep_search_task:
+  description: >
+    Conduct a deep search for publicly available information on a person, ensuring to consider full names including middle names when applicable.
+
+    **Search Directives:**
+    - **Social Media:** Search Google to locate profiles on GitHub, Instagram, Facebook, TikTok, and X (Twitter). Only save profiles that match the person's city or other verifiable details.
+    - **Societary Status:** Query the following sources:
+      - https://empresas.serasaexperian.com.br/
+      - https://www.econodata.com.br/
+      - http://cnpj.info/ (search twice: once with the full name and once with the phone number, returning direct links if found)
+    - **Additional Mentions & Info:** Use https://www.escavador.com/ to find additional personal details and mentions.
+    - **Legal Verification:** Look up records on https://www.jusbrasil.com.br/.
+
+    **Search Strategy:**
+    - If the person has a middle name, perform searches using both "Full Name" (First Name, Middle Name, and Last Name) and "First Name Last Name" separately.
+    - Use simple and targeted queries such as "FirstName LastName GitHub" and "Full Name GitHub", avoiding overly complex searches.
+    - Avoid combining multiple identification data points in a single search query (e.g., name + phone + profession). Instead, search each individually.
+    - Use any available LinkedIn profile to extract further information and cross-check data.
+    - If other social media profiles are found, verify their location and relevance before saving.
+    - Ensure societary status results include direct links when available.
+
+    Name: {name}
+    Phone: {phone}
+    Context: {context}
+  expected_output: >
+    - email
+    - social_media (only if verified by location or other matching details)
+    - societary_status (company name and direct links to company profiles if available)
+    - mentions
+    - interests
+    - legal_verification
+    - escavador_data
+
+image_collection_task:
+  description: >
+    Visit the social_media links found on deep_search_task, collect their profile pictures link and if there are other
+    social media images on the profiles, profiles albums also collect them and their associated captions,
+    basic metadata (post date, possible location, reactions) from the person social media profiles.
+  expected_output: >
+    - social_media_images: List[str]  List of image URLs or references
+
+
+image_processing_task:
+  description: >
+    If the the image list output from the image collection task is empty or contains no images url gracefully do nothing
+    and pass to the next task.
+    Otherwise, apply ImageAnalysisTool to extract information from the photos, such as personal characteristics, age range,
+    gender, marital status and interests. You must only process each image once. There is no need to use ImageAnalysisTool
+    on the same image more than one time.
+  expected_output: >
+    - age_range: str
+    - gender: str
+    - marital_status: str
+    - interests: List[InterestItem]
+    - people_descriptions
+
+data_consolidation_task:
+  description: >
+    Gather outputs from all agents (basic info, deep search, image collection, image analysis) and merge them
+    into a consistent final profile. Resolve any data conflicts by referencing all available information. The context
+    is used solely to filter or disambiguate conflicting data. You can use information sucha as name to specify the gender,
+    you can use educational milestones to infer the person age range, such as college, university begin....
+    Name: {name}
+    Phone: {phone}
+    Context: {context}
+    Use linkedin information as the primary source of truth for position and location
+  expected_output: >
+    - A structured JSON report with:
+      - Personal data (full name, age range, gender, marital status, approximate location)
+      - Professional history, corporate affiliations, social media profiles
+      - Interests, online mentions, image-based observations
+      - Notes regarding data reconciliation and the justification for each conclusion
+    Example final JSON structure:
+      {
+        "full_name": "FULL_NAME_PLACEHOLDER",
+        "phone": "PHONE_NUMBER_PLACEHOLDER",
+        "email": "EMAIL_PLACEHOLDER",
+        "age_range": "AGE_RANGE_PLACEHOLDER",
+        "gender": "GENDER_PLACEHOLDER",
+        "marital_status": "MARITAL_STATUS_PLACEHOLDER",
+        "approximate_location": "APPROXIMATE_LOCATION_PLACEHOLDER",
+        "profession": "PROFESSION_PLACEHOLDER",
+        "current_company": "CURRENT_COMPANY_PLACEHOLDER",
+        "social_media": {
+          "linkedin": "LINKEDIN_URL_PLACEHOLDER",
+          "instagram": "INSTAGRAM_URL_PLACEHOLDER",
+          "facebook": "FACEBOOK_URL_PLACEHOLDER"
+        },
+        "societary_status": [
+          {
+            "company": "COMPANY_PLACEHOLDER",
+            "cnpj": "CNPJ_PLACEHOLDER",
+            "source": "SOURCE_URL_PLACEHOLDER"
+          }
+        ],
+        "interests": [
+          {
+            "INTEREST_NAME_PLACEHOLDER": "INTEREST_DESCRIPTION_PLACEHOLDER",
+            "sources": [
+              "SOURCE_URL_PLACEHOLDER"
+            ]
+          }
+        ],
+        "mentions": [
+          {
+            "MENTION_TITLE_PLACEHOLDER": "MENTION_DESCRIPTION_PLACEHOLDER",
+            "sources": [
+              "SOURCE_URL_PLACEHOLDER"
+            ]
+          }
+        ],
+        "legal_verification": [
+          {
+            "LEGAL_RECORD_TITLE_PLACEHOLDER": "LEGAL_RECORD_DESCRIPTION_PLACEHOLDER",
+            "sources": [
+              "SOURCE_URL_PLACEHOLDER"
+            ]
+          }
+        ],
+        "social_media_images": [],
+        "observations_and_data_reconciliation": [
+          {
+            "OBSERVATION_TITLE_PLACEHOLDER": "OBSERVATION_DESCRIPTION_PLACEHOLDER",
+            "sources": [
+              "SOURCE_URL_PLACEHOLDER"
+            ]
+          }
+        ]
+      }
